@@ -1,0 +1,61 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+// import 'package:namastethailand/Dashboard/dashboard.dart';
+import 'package:namastethailand/onBoardingScreen/onBoardingScreen.dart';
+
+// import '../Utility/sharePrefrences.dart';
+import '../Dashboard/dashboard.dart';
+import '../Utility/sharePrefrences.dart';
+import '../login.dart';
+
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+
+
+    super.initState();
+    redirectUser();
+
+
+  }
+  Future<void> redirectUser() async {
+    String userEmail = await AppPreferences.getUserEnail()!;
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null && userEmail != null && userEmail == user.email) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Dashboard()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: AnimatedSplashScreen(
+            duration: 3000,
+            splash:  Image(
+              image: AssetImage(
+                "assets/icons/namasteThai.png",
+              ),
+            ),
+            nextScreen: OnBoardingScreen(),
+            splashTransition: SplashTransition.fadeTransition,
+            backgroundColor: Colors.white));
+  }
+}
