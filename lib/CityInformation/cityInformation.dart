@@ -40,7 +40,6 @@ class _CityInformationState extends State<CityInformation> {
 
 
   @override
-  LatLng bangkokLatLng = LatLng(13.7563, 100.5018);
   final cityCategory = FutureProvider.family((ref,String id) async {
     final dio = Dio();
     dio.options.headers['Authorization'] = 'Bearer ${AppPreferences.getUserId()}';
@@ -523,20 +522,46 @@ class _CityInformationState extends State<CityInformation> {
               SizedBox(height: 10,),
 
 
+                  Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Colors.orangeAccent,
+                    child:                 Consumer(
+                      builder: (context, watch, _) {
+                        final citiesFuture = watch.watch(cityContent(widget.id??'2'));
 
-              SizedBox(height: 5,),
+                        return citiesFuture.when(
+                          data: (response) {
+                        EasyLoading.show(status: response['contents']['longitude'].toString(), dismissOnTap: true);
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 200,
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: bangkokLatLng, // San Francisco
-                      zoom: 12,
-                    ),
+                        LatLng bangkokLatLng = LatLng(
+                          double.parse(response['contents']['latitude']),
+                          double.parse(response['contents']['longitude']),                        );
 
-              ),
-                ),
+                            return
+                              SizedBox(
+                              // Your desired size for the container
+                              child:                   GoogleMap(
+                                initialCameraPosition: CameraPosition(
+                                  target: bangkokLatLng, // San Francisco
+                                  zoom: 12,
+                                ),
+
+                              ),
+
+                            );
+                          },
+                          loading: () => Center(child: Container(
+                              height: 50,
+                              width:50,
+                              child: CircularProgressIndicator())),
+                          error: (error, _) => Text('Error: $error'),
+                        );
+                      },
+                    )
+                    ,
+                  ),
+
               SizedBox(height: 10,),
 
               BlurryContainer(
@@ -664,5 +689,25 @@ class _CityInformationState extends State<CityInformation> {
       );
 
   }
+  final cityContent = FutureProvider.family((ref,String id) async {
+    final dio = Dio();
+    dio.options.headers['Authorization'] = 'Bearer ${AppPreferences.getUserId()}';
+
+    try {
+      final response = await dio.post(
+        'https://test.pearl-developer.com/thaitours/public/api/about-city?city_id=${id}',
+        data: {'city_id': id}, // Replace `yourId` with the actual id value you want to send
+      );
+
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        throw Exception('Failed to load categories');
+      }
+    } catch (e) {
+      throw Exception('Failed to load categories: $e');
+    }
+  });
+
 
 }

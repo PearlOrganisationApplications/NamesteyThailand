@@ -6,6 +6,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -98,16 +100,21 @@ class _DashboardState extends State<Dashboard> {
     print('Thailand Time: $thailandTime');
   }
 
+/*
   Future getWeather() async {
     http.Response response = await http.get(Uri.parse(
         "https://api.openweathermap.org/data/2.5/weather?q=bangkok&unit=standard&appid=d2543525e18d401cc374116eebc57c14"));
     var results = jsonDecode(response.body);
+*/
 /*
     print(response.body);
+*//*
+
 */
 /*
     print(temp);
-*/
+*//*
+
     setState(() {
       this.temp = results['main']['temp'];
       this.description = results['weather'][0]['description'];
@@ -117,6 +124,7 @@ class _DashboardState extends State<Dashboard> {
       this.celciousTemp = this.celciousTemp.round();
     });
   }
+*/
 
   bool _isConnected = false;
 
@@ -138,7 +146,9 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
+/*
     this.getWeather();
+*/
     this.getTime();
     getConnectivity();
     fetchCurrencyData();
@@ -372,10 +382,10 @@ class _DashboardState extends State<Dashboard> {
                     return countryFuture.when(
                       data: (response) {
                         final countryWeather = response['weather']['temperature'].toString();
-
+                        // EasyLoading.show(status: countryWeather, dismissOnTap: true);
                         return SizedBox(
                           // Your desired size for the container
-                          child: Text("countryWeather\u00b0 C")
+                          child: Text("${countryWeather}\u00b0 C")
                         );
                       },
                       loading: () => Center(child: Container(
@@ -455,6 +465,8 @@ class _DashboardState extends State<Dashboard> {
                       return citiesFuture.when(
                         data: (response) {
                           final cities = response['advert'];
+                          EasyLoading.show(status: response['advert']);
+
 
                           return SizedBox(
                             // Your desired size for the container
@@ -563,43 +575,30 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 height: 5,
               ),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'Thailand\n',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: '- Country in Southeast Asia\n'),
-                    TextSpan(text: '- Bangkok (capital city)\n'),
-                    TextSpan(text: '- Thai language\n'),
-                    TextSpan(text: '- Buddhism (predominant religion)\n'),
-                    TextSpan(
-                        text: '- Thai cuisine (popular for its use of herbs and spices)\n'),
-                    TextSpan(text: '- Tropical climate\n'),
-                    TextSpan(
-                        text: '- Beaches and islands (e.g. Phuket, Koh Samui, Krabi)\n'),
-                    TextSpan(
-                        text: '- Historical and cultural landmarks (e.g. Grand Palace, Wat Arun, Ayutthaya)\n'),
-                    TextSpan(text: '- Famous for tourism industry\n'),
-                    TextSpan(text: '- Elephants (national animal)\n'),
-                    TextSpan(
-                        text: '- King Rama IX (Bhumibol Adulyadej) - the longest-reigning monarch in Thai history\n'),
-                    TextSpan(text: '- Songkran (Thai New Year festival)\n'),
-                    TextSpan(
-                        text: '- Tuk-tuks (three-wheeled motorized vehicles)\n'),
-                    TextSpan(
-                        text: '- Muay Thai (Thai boxing) - a popular martial art\n'),
-                    TextSpan(
-                        text: '- The River Kwai Bridge - a historic bridge located in Kanchanaburi province\n'),
-                    TextSpan(
-                        text: '- Thai silk - a type of fabric known for its beauty and durability\n'),
-                    TextSpan(
-                        text: '- Floating markets - where vendors sell goods from boats\n'),
-                    TextSpan(
-                        text: '- The Full Moon Party - a monthly beach party held on Koh Phangan island\n'),
-                    TextSpan(
-                        text: '- Tom Yum soup - a spicy and sour soup commonly found in Thai cuisine\n'),
-                  ],
-                ),
+              Text("Thailand",style: TextStyle(fontWeight: FontWeight.bold),),
+              Consumer(
+                builder: (context, watch, _) {
+                  final countryFuture = watch.watch(aboutCountry);
+
+                  return countryFuture.when(
+                    data: (response) {
+                      final countryDescription = response['main']['description'].toString();
+
+                      return SizedBox(
+                        // Your desired size for the container
+                        child:
+                        Html(
+                          data: countryDescription.toString(),
+                        ),
+                      );
+                    },
+                    loading: () => Center(child: Container(
+                        height: 50,
+                        width: 50,
+                        child: CircularProgressIndicator())),
+                    error: (error, _) => Text('Error: $error'),
+                  );
+                },
               ),
               SizedBox(
                 height: 5,

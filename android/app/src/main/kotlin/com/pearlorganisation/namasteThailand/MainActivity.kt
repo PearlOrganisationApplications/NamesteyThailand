@@ -1,4 +1,4 @@
-package com.example.namastethailand
+package com.pearlorganisation.namasteThailand
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -108,11 +108,10 @@ class _SignUpState extends State<SignUp> {
     String userEmail = response.data['user']['email'];
     String phone_no = response.data['user']['mobile_no'];
 
-
-      if (response.statusCode == 200) {
-        EasyLoading.dismiss();
+      if (response.data['status'] == "201") {
         print("signUpUserdata455555555555555555555555555555555555555555555555555555555555555555555555${response.data["token"]}");
         AppPreferences.setUserProfile(userId, displayName, userEmail, "", phone_no);
+        EasyLoading.dismiss();
         Navigator.pushReplacement<void, void>(
           context,
           MaterialPageRoute<void>(
@@ -122,16 +121,30 @@ class _SignUpState extends State<SignUp> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Welcome to Thailand tour')),
         );
-      } else {
+      }
+      else if(response.data['status']=="501")   {
         EasyLoading.dismiss();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('SignUp failed')),
+          SnackBar(content: Text(response.data["msg"].toString()),
+          backgroundColor: Colors.red,
+          )
         );
+      }
+      else{
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response.data["msg"].toString()),
+              backgroundColor: Colors.red,
+            )
+        );
+
       }
     } catch (e) {
       EasyLoading.dismiss();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('SignUp failed')),     );
+        SnackBar(content: Text(e.toString()),
+        backgroundColor: Colors.yellowAccent,
+        ),
+      );
 
       print(e);
     }
