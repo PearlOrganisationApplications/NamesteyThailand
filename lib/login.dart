@@ -7,7 +7,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:namastethailand/CreateAccount/signUp.dart';
 import 'package:namastethailand/Dashboard/dashboard.dart';
+import 'package:namastethailand/widet/appleApi.dart';
 import 'package:namastethailand/widet/otpForFogetPassword.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'dart:io';
 import 'UserProfile/otpScreen.dart';
 import 'Utility/sharePrefrences.dart';
@@ -322,14 +324,47 @@ class _LoginState extends State<Login> {
                                 );
                               }
                             },
-                            child: BlurryContainer(
-                              height: 70,
-                              width: 70,
-                              blur: 10,
-                              elevation: 1,
-                              color: Colors.white,
-                              padding: EdgeInsets.all(25),
-                              child: Image.asset("assets/icons/google.png"),
+                            child: GestureDetector(
+                              onTap: () async{
+                                try {
+
+                                  final credential = await SignInWithApple.getAppleIDCredential(
+                                    scopes: [
+                                      AppleIDAuthorizationScopes.email,
+                                      AppleIDAuthorizationScopes.fullName,
+                                    ],
+                                  );
+                                  if (credential.identityToken != null) {
+                                    final MyResponse? response = await Api.signInWithOptions(
+                                      email: credential.email ?? '',
+                                      idToken: credential.identityToken ?? '',
+                                      name: '${credential.givenName} ${credential.familyName}' ?? '',
+                                      type: 'apple',
+                                    );
+                                    print(response);
+                                    // Handle the response accordingly
+                                  }
+                                  else {
+                                    EasyLoading.showError('Canceled by user',
+                                        duration: Duration(seconds: 3));
+                                  }
+                                  //credential.
+                                }catch (exception) {
+                                  EasyLoading.showError(exception.toString(),
+                                      duration: Duration(seconds: 3));
+                                  print(
+                                      'error error - ' + exception.toString());
+                                }
+                              },
+                              child: BlurryContainer(
+                                height: 70,
+                                width: 70,
+                                blur: 10,
+                                elevation: 1,
+                                color: Colors.white,
+                                padding: EdgeInsets.all(25),
+                                child: Image.asset("assets/icons/google.png"),
+                              ),
                             ),
                           )
                         ],
