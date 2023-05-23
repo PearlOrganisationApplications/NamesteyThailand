@@ -415,7 +415,7 @@ class _CityInformationState extends State<CityInformation> {
                   child: Row(
                     children: [
                       SizedBox(width: 10,),
-                      Text("About Bankok ",
+                      Text("About ${widget.city_name} ",
                         style: GoogleFonts.notoSansAnatolianHieroglyphs(
                             color: Colors.white,
                             fontSize: 20,
